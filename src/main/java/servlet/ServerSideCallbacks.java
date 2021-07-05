@@ -40,7 +40,7 @@ public class ServerSideCallbacks extends HttpServlet{
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws 
         ServletException, IOException {
-
+            System.out.println("javax.net.ssl.trustStorePassword: " + System.getenv("CACERTS_PASSWORD"));
     		System.setProperty("javax.net.ssl.trustStore",".jdk/jre/lib/security/cacerts");
     		System.setProperty("javax.net.ssl.trustStorePassword", System.getenv("CACERTS_PASSWORD"));
         String code = request.getParameter("code");
@@ -61,17 +61,24 @@ public class ServerSideCallbacks extends HttpServlet{
             communityUrl = request.getParameter("sfdc_community_url");
             // Token endpoint : communityUrl + "/services/oauth2/token";
             PostMethod post = new PostMethod(communityUrl+"/services/oauth2/token");
+            System.out.println("code: " + code);
             post.addParameter("code",code);
             post.addParameter("grant_type","authorization_code");
+            
             // Consumer key of the Connected App.
+            System.out.println("client_id: " + CLIENT_ID);
             post.addParameter("client_id", CLIENT_ID);
+
             // Consumer Secret of the Connected App.
+            System.out.println("client_secret: " + CLIENT_SECRET);
             post.addParameter("client_secret",CLIENT_SECRET);
             
             // Callback URL of the Connected App.
+            System.out.println("redirect_uri: " + System.getenv("SALESFORCE_HEROKUAPP_URL"));
             post.addParameter("redirect_uri", "https://" +  System.getenv("SALESFORCE_HEROKUAPP_URL") + "/_callback");
             
-    			System.out.println("Attempting to POST to token endpoint: " + post.getPath());	
+    		System.out.println("Attempting to POST to token endpoint: " + post.getPath());	
+
             httpclient.executeMethod(post);
             tokenResponse = post.getResponseBodyAsString();
             post.releaseConnection();

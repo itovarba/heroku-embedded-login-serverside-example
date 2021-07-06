@@ -88,6 +88,7 @@ public class ServerSideCallbacks extends HttpServlet{
         	System.out.println("Attempting to parse token response: " + tokenResponse);
             JSONObject token = new JSONObject(tokenResponse);
             String accessToken = token.getString("access_token");
+            String refreshToken = token.getString("refresh_token");
             String identity = token.getString("id");
             httpclient = new HttpClient();
             System.out.println("GET request: " + identity);
@@ -95,15 +96,18 @@ public class ServerSideCallbacks extends HttpServlet{
             get.setFollowRedirects(true);
             get.addRequestHeader("Authorization", "Bearer " + accessToken);
             httpclient.executeMethod(get);
+            
             String identityResponse = get.getResponseBodyAsString();
+            System.out.println("Identity Response: " + identityResponse);
             get.releaseConnection();
+
             identityJSON = new JSONObject(identityResponse);
             identityJSON.put("access_token", accessToken);
+            identityJSON.put("refresh_token", refreshToken);
         } catch (Exception e) {
             throw new ServletException(e);
         }
         
-
         response.setContentType("text/html; charset=utf-8");
         PrintWriter out = response.getWriter();
 
